@@ -9,10 +9,12 @@ Hi fellow MIS students of University of the Philippines Open University! Welcome
 If you need to store Client ID, Client Secret Keys, and API Keys as specified on the project specifications' IMPORTANT REMINDERS section, please message Don Davis Arroyo or Dayvie Laparan. Programmers must use 'dotenv' instead of typing the IDs and Keys as variable because it might affect the security of the API. 
 
 For Commit, Push, and Pull, you may refer to the following commands below:
+
 1.) git status 
 - files that are tracked and recognized as not present in the repository will glow red. Otherwise, if up to date, green.
+
 2.) git add <filename.ext>
-- will put the tracked files to staging, preparing the file to be committed and pushed.
+  - will put the tracked files to staging, preparing the file to be committed and pushed.
 3.) git commit -m "Message / Remarks here"
 -will put a comment / message for the file for each members' visibility. Please use this always so we know what was the last update aside from inserting comments in your code.
 4.) git push origin main
