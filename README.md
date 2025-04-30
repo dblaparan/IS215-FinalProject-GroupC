@@ -1,5 +1,6 @@
 # IS215-FinalProject-GroupC
 
+
 Hi fellow MIS students of University of the Philippines Open University! Welcome to the final project repository of Group C for IS215 - Advanced Computer Systems. This is the result of our hard work and collaboration to achieve an article generator using the following technologies:
 
 - AWS EC2
