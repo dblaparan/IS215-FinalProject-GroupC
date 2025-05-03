@@ -1,111 +1,104 @@
 import React, { useState } from 'react';
-import '../styles/NewsArticleUI.css';
+import './NewsArticleUI.css';
 
-import articleImage from 'public/images/article-image-001.jpg';
+const NewsArticle = ({ article, imageUrl, analysisData }) => {
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
-const NewsArticleUI = () => {
+  if (!article) return null;
 
-  // Sample news articles data for demonstration purposes onli
-  const [articles] = useState([
-    {
-      id: 1,
-      title: "Enthusiastic Crowd Gathers for Intense Basketball Game with a Technological Twist",
-      category: "Sports",
-      author: "John Doe",
-      date: "May 2, 2025",
-      image: articleImage,
-      summary: "In a thrilling basketball game that captivated spectators, the fervor for the sport was palpable as players showcased their skills with the precision of professionals.",
-      content: "In a thrilling basketball game that captivated spectators, the fervor for the sport was palpable as players showcased their skills with the precision of professionals. With a focus on the ball, basketball, and sporting activities with high confidence levels, it was evident that the game resonated with fans of all ages. The court was filled with adult male participants, donning various clothing styles and sporting hats, while accessories like glasses added a touch of flair to the scene. Surprisingly, as the action unfolded, a notable presence of electronic devices including laptops and PCs among the crowd highlighted the modern convergence of sports and technology in today's digital age. The game not only united players and fans but also showcased the fusion of athleticism and innovation, creating an unforgettable experience for all involved."
-    }
-  ]);
-
-  const [selectedArticle, setSelectedArticle] = useState(null);
-
-  const handleArticleClick = (article) => {
-    setSelectedArticle(article);
-  };
-
-  const handleBackClick = () => {
-    setSelectedArticle(null);
+  // Prepare labels for display
+  const formatLabels = () => {
+    if (!analysisData || !analysisData.Labels) return [];
+    return analysisData.Labels
+      .sort((a, b) => b.Confidence - a.Confidence)
+      .map(label => ({
+        name: label.Name,
+        confidence: label.Confidence.toFixed(1)
+      }));
   };
 
   return (
-    <div className="news-container">
+    <div className="news-article">
       {/* Header */}
-      <header className="header">
-        <div className="container">
-          <h1 className="header-title">IS215 Group C</h1>
+      <header className="article-header">
+        <h2>{article.title}</h2>
+        <div className="article-info">
+          <span>{article.category}</span>
+          <span>•</span>
+          <span>{article.date}</span>
         </div>
       </header>
 
-      <main className="main-content container">
-        {selectedArticle ? (
-          // Article Full Details View
-          <div className="article-detail">
-            <button 
-              onClick={handleBackClick}
-              className="back-button"
-            >
-              Back to News
-            </button>
-            
-            {/* Article Image */}
-            <div className="article-image-container">
-              <img 
-                src={selectedArticle.image} 
-                alt={selectedArticle.title}
-                className="article-detail-image"
-              />
-            </div>
-            
-            {/* Article Category and Date */}
-            <span className="article-meta">{selectedArticle.category} | {selectedArticle.date}</span>
-            
-            {/* Article Title */}
-            <h2 className="article-title">{selectedArticle.title}</h2>
-            <p className="article-author">By {selectedArticle.author}</p>
-            
-            <div className="article-divider"></div>
-            
-            {/* Article Body */}
-            <p className="article-summary">{selectedArticle.summary}</p>
-            <p className="article-content">{selectedArticle.content}</p>
-          </div>
-        ) : (
-          // News List View
-          <div>
-            <h2 className="section-title">Latest News</h2>
-            <div className="articles-grid">
-              {articles.map(article => (
-                <div 
-                  key={article.id} 
-                  className="article-card"
-                  onClick={() => handleArticleClick(article)}
-                >
-                  <div className="article-image-container">
-                    <img 
-                      src={article.image} 
-                      alt={article.title}
-                      className="article-image"
-                    />
-                  </div>
-                  <span className="article-category">{article.category}</span>
-                  <h3 className="article-card-title">{article.title}</h3>
-                  <p className="article-card-meta">{article.date} • By {article.author}</p>
-                  <p className="article-card-summary">{article.summary}</p>
+      {/* Content */}
+      <div className="article-content">
+        <div className="article-image-container">
+          <img src={imageUrl || article.image} alt="Article" className="article-image" />
+        </div>
+        <p className="article-author">By {article.author}</p>
+        <div className="article-text">
+          {article.content.split('\n\n').map((para, idx) => (
+            <p key={idx}>{para}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Analysis Toggle */}
+      <div className="article-footer">
+        <button 
+          className="analysis-toggle"
+          onClick={() => setShowAnalysis(!showAnalysis)}
+        >
+          {showAnalysis ? 'Hide Analysis Details' : 'Show Analysis Details'}
+        </button>
+
+        {showAnalysis && (
+          <div className="analysis-details">
+            <h3>Image Analysis</h3>
+
+            <div className="labels-container">
+              {formatLabels().map((label, index) => (
+                <div key={index} className="label-item">
+                  <span className="label-name">{label.name}</span>
+                  <span className="label-confidence">{label.confidence}%</span>
                 </div>
               ))}
             </div>
+
+            {analysisData.FaceDetails?.length > 0 && (
+              <div className="faces-details">
+                <h4>Faces Detected: {analysisData.FaceDetails.length}</h4>
+                {analysisData.FaceDetails.map((face, index) => (
+                  <div key={index} className="face-item">
+                    <p>Face #{index + 1}</p>
+                    {face.Gender && (
+                      <p>Gender: {face.Gender.Value} ({face.Gender.Confidence.toFixed(1)}%)</p>
+                    )}
+                    {face.AgeRange && (
+                      <p>Age range: {face.AgeRange.Low} - {face.AgeRange.High}</p>
+                    )}
+                    {face.Emotions?.length > 0 && (
+                      <p>Primary emotion: {face.Emotions[0].Type} ({face.Emotions[0].Confidence.toFixed(1)}%)</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {analysisData.CelebrityFaces?.length > 0 && (
+              <div className="celebrity-details">
+                <h4>Celebrities Detected:</h4>
+                <ul>
+                  {analysisData.CelebrityFaces.map((celeb, index) => (
+                    <li key={index}>
+                      {celeb.Name} ({celeb.MatchConfidence.toFixed(1)}%)
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
-      </main>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <p className="footer-text">© 2025 IS215 Group C. All rights reserved.</p>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 };
