@@ -48,7 +48,27 @@ async function generateArticleFromJson(outputKey) {
         console.log('\n Fictional Article:\n');
         console.log(article);
 
-        return article;
+        //Adding Article to push back as JSON in S3 
+        const articleKey = `articles/${outputKey.split('/').pop().split('_')[0]}_article.json`;
+
+        await s3.putObject({
+            Bucket: BUCKET_NAME,
+            Key: articleKey,
+            Body: JSON.stringify({ article }, null, 2),
+            ContentType: 'application/json'
+        }).promise();
+
+        //// Generate article filename
+        //const articleName = key.split('/').pop().split('.')[0];
+        //const articleKey = `Articles/${articleName}_Article.json`;
+
+        //// Upload the JSON file to S3
+        //await s3.putObject({
+        //    Bucket: BUCKET_NAME,
+        //    Key: articleKey,
+        //    Body: JSON.stringify(labels, null, 1),
+        //    ContentType: 'application/json'
+        //}).promise();
 
     } catch (err) {
         console.error('Error:', err.message || err);
