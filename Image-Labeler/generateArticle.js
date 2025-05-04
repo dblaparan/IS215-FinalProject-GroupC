@@ -5,11 +5,14 @@ const axios = require('axios');
 // Configure AWS SDK
 const s3 = new AWS.S3({ region: 'us-east-1' }); // Update region if needed; I will check with the final account during the deployment. 
 
-const BUCKET_NAME = 'your-s3-bucket-name'; // Shall be replaced once we deploy on the official AWS account for the group.
-const JSON_FILE_KEY = 'labels/image123.json'; //Same as previous line.
+const BUCKET_NAME = 'is215-image-labeling'; // Shall be replaced once we deploy on the official AWS account for the group.
 
-async function generateArticleFromJson() {
+async function generateArticleFromJson(outputKey) {
     try {
+
+        const baseName = imageKey.split('/').pop().split('.')[0];
+        const JSON_FILE_KEY = `labels/${baseName}_labels.json`;
+
         // Retrieval of JSON from S3 for OpenAI endpoint query later.
         const s3Data = await s3.getObject({
             Bucket: BUCKET_NAME,
@@ -56,7 +59,8 @@ async function generateArticleFromJson() {
 
 // For local testing
 if (require.main === module) {
-    generateArticleFromJson().then(console.log);
+    const testKey = 'uploads/cat.jpg'; // simulate uploaded file path
+    generateArticleFromJson(testKey).then(console.log);
 }
 
 module.exports = generateArticleFromJson;
