@@ -1,4 +1,3 @@
-/* NewsArticleUI.css */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,45 +5,44 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  background-color: #f5f5f5;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.7;
+  background-color: #f2f4f8;
   color: #333;
 }
 
 .news-article {
-  margin: 2rem auto;
-  max-width: 900px;
-  text-align: left;
+  margin: 2.5rem auto;
+  max-width: 960px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
 /* Header styles */
 .article-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
+  padding: 2rem;
+  border-bottom: 1px solid #e3e7ed;
 }
 
 .article-title {
-  margin: 0 0 0.5rem;
-  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: #212529;
+  color: #1e2125;
 }
 
 .article-meta {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  font-size: 0.95rem;
   color: #6c757d;
-  font-size: 0.9rem;
   align-items: center;
 }
 
 .article-category {
-  color: #007bff;
+  color: #0d6efd;
   font-weight: 600;
 }
 
@@ -56,58 +54,57 @@ body {
 
 .article-image-container {
   width: 100%;
-  max-height: 400px;
+  max-height: 420px;
+  padding: 1.5rem;
   overflow: hidden;
   text-align: center;
-  padding: 1rem;
 }
 
 .article-image {
   max-width: 100%;
-  max-height: 400px;
-  object-fit: contain;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .article-byline {
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   margin-top: 1rem;
   font-style: italic;
   color: #6c757d;
 }
 
 .article-body {
-  padding: 1.5rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #343a40;
+  padding: 2rem;
+  font-size: 1.05rem;
+  color: #2e3237;
 }
 
 .article-body p {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Analysis section */
 .analysis-section {
-  padding: 1.5rem;
-  border-top: 1px solid #e9ecef;
-  background-color: #f8f9fa;
+  padding: 2rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #e3e7ed;
 }
 
 .analysis-toggle {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  cursor: pointer;
+  background-color: #0d6efd;
+  color: #fff;
+  padding: 0.7rem 1.4rem;
   font-weight: 600;
-  transition: all 0.3s;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .analysis-toggle:hover {
-  background-color: #0069d9;
+  background-color: #0b5ed7;
 }
 
 .analysis-details {
@@ -115,169 +112,157 @@ body {
 }
 
 .analysis-details h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #212529;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid #0d6efd;
   padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .analysis-details h4 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.2rem;
-  color: #212529;
-  border-left: 3px solid #ff9900; /* AWS orange */
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.75rem;
   padding-left: 10px;
+  border-left: 4px solid #ff9f43;
+  color: #343a40;
 }
 
-/* Labels list */
+/* Labels */
 .label-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  gap: 12px;
 }
 
 .label-item {
-  background-color: white;
-  border-radius: 6px;
-  padding: 10px 14px;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .label-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
 .label-name {
   font-weight: 600;
-  color: #343a40;
+  color: #212529;
 }
 
 .label-confidence {
-  color: #007bff;
+  color: #0d6efd;
   font-weight: 600;
-  padding: 2px 6px;
-  background-color: rgba(0, 123, 255, 0.1);
-  border-radius: 3px;
+  padding: 4px 8px;
+  background-color: rgba(13, 110, 253, 0.1);
+  border-radius: 4px;
 }
 
 /* Face details */
 .face-details {
-  background-color: white;
+  background-color: #fff;
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
 }
 
 .face-summary {
   margin-bottom: 1rem;
+  font-weight: 500;
+  border-bottom: 1px solid #dee2e6;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e9ecef;
-  font-size: 1rem;
 }
 
 .face-item {
+  padding: 1rem;
   margin-bottom: 1rem;
-  padding: 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
-}
-
-.face-item:last-child {
-  margin-bottom: 0;
+  border: 1px solid #e3e7ed;
+  border-radius: 8px;
+  background-color: #fcfcfd;
 }
 
 .face-item h5 {
+  margin-bottom: 0.5rem;
   font-size: 1.1rem;
-  margin-bottom: 10px;
-  color: #343a40;
-  background-color: #f0f7ff;
-  padding: 5px 10px;
-  border-radius: 4px;
+  color: #1e2125;
+  background-color: #edf4ff;
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
 .face-attributes p {
   margin: 5px 0;
-  padding: 5px 8px;
-  background-color: #f8f9fa;
+  background-color: #f1f3f5;
+  padding: 6px 10px;
   border-radius: 4px;
 }
 
 .confidence-value {
-  margin-left: 5px;
-  color: #007bff;
+  color: #0d6efd;
+  font-weight: 600;
 }
 
 /* Celebrity faces */
 .celebrity-faces {
-  background-color: white;
+  background-color: #fff;
   border-radius: 8px;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .celebrity-faces ul {
-  margin: 0;
   padding-left: 1.2rem;
 }
 
 .celebrity-faces li {
-  margin-bottom: 8px;
-  padding: 6px 10px;
+  margin-bottom: 0.5rem;
   background-color: #f8f9fa;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
 }
 
-/* Analysis footer */
+/* Footer */
 .analysis-footer {
-  margin-top: 1.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e9ecef;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e3e7ed;
   font-size: 0.85rem;
   color: #6c757d;
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (min-width: 768px) {
   .article-content {
     flex-direction: row;
   }
 
   .article-image-container {
-    width: 40%;
-    max-height: none;
+    width: 45%;
   }
 
   .article-body {
-    width: 60%;
-  }
-  
-  /* Keep labels in a grid even on larger screens */
-  .label-list {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    width: 55%;
   }
 }
 
 @media (max-width: 767px) {
   .article-title {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
   }
-  
+
   .label-list {
     grid-template-columns: 1fr;
   }
-  
+
   .analysis-section {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 }

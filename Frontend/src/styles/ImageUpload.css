@@ -1,56 +1,72 @@
 /* ImageUpload.css */
 .container {
-    background-color: white;
-    margin: 25px auto;
-    padding: 25px;
-    max-width: 700px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    text-align: left;
-  }
-  
-  .upload-section {
-    text-align: center;
-  }
-  
-  .upload-btn {
-    display: inline-block;
-    padding: 10px 25px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-  }
-  
-  .upload-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  input[type="file"] {
-    display: none;
-  }
-  
-  #imagePreview {
-    display: none;
-    margin-top: 15px;
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 6px;
-  }
-  
-  .label {
-    font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  .news-article p {
-    font-size: 15px;
-    line-height: 1.6;
-  }
-  
+  background-color: #f9f9f9;
+  margin: 40px auto;
+  padding: 30px 40px;
+  max-width: 720px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.upload-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.upload-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #0069d9);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+#imagePreview {
+  display: none;
+  margin-top: 20px;
+  max-width: 100%;
+  height: auto;
+  border: 2px dashed #ccc;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+#imagePreview:hover {
+  border-color: #007bff;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.news-article p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #555;
+}

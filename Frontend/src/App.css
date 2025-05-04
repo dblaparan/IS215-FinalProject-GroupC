@@ -1,12 +1,15 @@
 body {
-  font-family: 'Georgia', serif;
+  font-family: 'Inter', sans-serif;
   background-color: #f2f2f2;
   margin: 0;
   padding: 40px;
   text-align: center;
+  color: #212529;
 }
 
 h1, h2 {
   margin: 0;
   padding: 5px 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
