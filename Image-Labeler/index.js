@@ -39,7 +39,7 @@ exports.handler = async (event) => {
       ContentType: 'application/json'
     }).promise();
 
-      generateArticleFromJson(outputKey) //added Parameter to be passed
+   await generateArticleFromJson(outputKey) //added Parameter to be passed
     
     console.log(`✅ Labels file written to ${outputKey}`);
     return {
