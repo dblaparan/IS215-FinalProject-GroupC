@@ -3,52 +3,56 @@ const rekognition = new AWS.Rekognition();
 const s3 = new AWS.S3();
 
 exports.handler = async (event) => {
-  console.log("Event:", JSON.stringify(event, null, 2));
-  
-  const bucket = event.Records[0].s3.bucket.name;
-  const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
-  
-  const params = {
-    Image: {
-      S3Object: {
-        Bucket: bucket,
-        Name: key
-      }
-    },
-    MaxLabels: 10,
-    MinConfidence: 70
-  };
-
   try {
-    const data = await rekognition.detectLabels(params).promise();
+    const bucket = event.Records[0].s3.bucket.name;
+    const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
 
-    const labelText = data.Labels.map(label =>
-      `${label.Name}: ${label.Confidence.toFixed(2)}%`
-    ).join('\n');
+    console.log(`Processing image: s3://${bucket}/${key}`);
 
-    const labelFileKey = key.replace(/\.[^.]+$/, '') + '_labels.txt'; // replaces extension with _labels.txt
+    // Step 1: Detect labels using Rekognition
+    const detectLabelsResponse = await rekognition.detectLabels({
+      Image: {
+        S3Object: {
+          Bucket: bucket,
+          Name: key
+        }
+      },
+      MaxLabels: 10,
+      MinConfidence: 70
+    }).promise();
 
-    const uploadParams = {
+    const labels = detectLabelsResponse.Labels.map(label => ({
+      Name: label.Name,
+      Confidence: label.Confidence
+    }));
+
+    console.log('Detected labels:', labels);
+
+    // Step 2: Save labels to a new JSON file in S3
+    const outputKey = key.replace(/\.[^/.]+$/, '') + '_labels.json'; // e.g., photo.jpg → photo_labels.json
+
+    const putResult = await s3.putObject({
       Bucket: bucket,
-      Key: `labels/${labelFileKey}`, // stores in a "labels/" folder
-      Body: labelText,
-      ContentType: 'text/plain'
-    };
+      Key: outputKey,
+      Body: JSON.stringify(labels, null, 2),
+      ContentType: 'application/json'
+    }).promise();
 
-    await s3.putObject(uploadParams).promise();
-
-    console.log(`Labels written to: labels/${labelFileKey}`);
+    console.log(`Labels saved to s3://${bucket}/${outputKey}`);
 
     return {
       statusCode: 200,
-      body: JSON.stringify('Labeling and upload complete')
+      body: JSON.stringify({
+        message: 'Image processed and labels saved',
+        outputKey: outputKey
+      })
     };
 
-  } catch (err) {
-    console.error('Error:', err);
+  } catch (error) {
+    console.error('Error processing image:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify('Error processing image')
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
