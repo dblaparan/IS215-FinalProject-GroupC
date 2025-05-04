@@ -109,7 +109,7 @@ function ImageUpload({ onImageUpload, onUploadStart, onAnalysisComplete }) {
         )}
       </div>
       
-      {/* News Article (only show this if we're not using the external NewsArticleUI component) */}
+      {/* News Article*/}
       {!onAnalysisComplete && (
         <div className="container news-article">
           <div className="label">News Article</div>
