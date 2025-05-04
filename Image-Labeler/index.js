@@ -1,15 +1,14 @@
 const AWS = require('aws-sdk');
+const generateArticleFromJson = require('./generateArticle');
 const rekognition = new AWS.Rekognition();
 const s3 = new AWS.S3();
 
 exports.handler = async (event) => {
   try {
-    const bucket = event.Records[0].s3.bucket.name;
-    const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
+    const record = event.Records[0];
+    const bucket = record.s3.bucket.name;
+    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
 
-    console.log(`Processing image: s3://${bucket}/${key}`);
-
-    // Step 1: Detect labels using Rekognition
     const detectLabelsResponse = await rekognition.detectLabels({
       Image: {
         S3Object: {
@@ -28,31 +27,31 @@ exports.handler = async (event) => {
 
     console.log('Detected labels:', labels);
 
-    // Step 2: Save labels to a new JSON file in S3
-    const outputKey = key.replace(/\.[^/.]+$/, '') + '_labels.json'; // e.g., photo.jpg → photo_labels.json
+    // Generate output file name
+    const baseName = key.split('/').pop().split('.')[0];
+    const outputKey = `labels/${baseName}_labels.json`;
 
-    const putResult = await s3.putObject({
+    // Upload the JSON file to S3
+    await s3.putObject({
       Bucket: bucket,
       Key: outputKey,
       Body: JSON.stringify(labels, null, 2),
       ContentType: 'application/json'
     }).promise();
 
-    console.log(`Labels saved to s3://${bucket}/${outputKey}`);
-
+    generateArticleFromJson()
+    
+    console.log(`✅ Labels file written to ${outputKey}`);
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: 'Image processed and labels saved',
-        outputKey: outputKey
-      })
+      body: `Successfully labeled ${key}`
     };
 
-  } catch (error) {
-    console.error('Error processing image:', error);
+  } catch (err) {
+    console.error('❌ Error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: 'Error processing image'
     };
   }
 };
