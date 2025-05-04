@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './NewsArticleUI.css';
+import '../styles/NewsArticleUI.css';
 
 const NewsArticle = ({ article, imageUrl, analysisData }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -103,4 +103,4 @@ const NewsArticle = ({ article, imageUrl, analysisData }) => {
   );
 };
 
-export default NewsArticleUI;
+export default NewsArticle;
