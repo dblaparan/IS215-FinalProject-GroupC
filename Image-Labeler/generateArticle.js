@@ -5,13 +5,12 @@ const axios = require('axios');
 // Configure AWS SDK
 const s3 = new AWS.S3({ region: 'us-east-1' }); // Update region if needed; I will check with the final account during the deployment. 
 
-const BUCKET_NAME = 'is215-image-labeling'; // Shall be replaced once we deploy on the official AWS account for the group.
+const BUCKET_NAME = 'is215-image-labeling'; //S3 Bucket Name
 
 async function generateArticleFromJson(outputKey) {
     try {
 
-        const baseName = imageKey.split('/').pop().split('.')[0];
-        const JSON_FILE_KEY = `labels/${baseName}_labels.json`;
+        const JSON_FILE_KEY = outputKey; // Added to declare JSON FILE KEY based on the parameter passed by index.js
 
         // Retrieval of JSON from S3 for OpenAI endpoint query later.
         const s3Data = await s3.getObject({
