@@ -1,86 +1,212 @@
-require('dotenv').config();
 const AWS = require('aws-sdk');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
 
-// Configure AWS SDK
-const s3 = new AWS.S3({ region: 'us-east-1' }); // Update region if needed; I will check with the final account during the deployment. 
+const s3 = new AWS.S3({ region: 'us-east-1' });
+const rekognition = new AWS.Rekognition({ region: 'us-east-1' });
 
-const BUCKET_NAME = 'is215-image-labeling'; //S3 Bucket Name
+const BUCKET_NAME = 'is215-image-labeling';
 
-async function generateArticleFromJson(outputKey) {
-    try {
+exports.handler = async (event) => {
+  console.log('Received event:', JSON.stringify(event, null, 2));
 
-        const JSON_FILE_KEY = outputKey; // Added to declare JSON FILE KEY based on the parameter passed by index.js
+  try {
+    const httpMethod = event.httpMethod || event.requestContext?.http?.method;
+    const path = event.path || event.rawPath;
 
-        // Retrieval of JSON from S3 for OpenAI endpoint query later.
-        const s3Data = await s3.getObject({
-            Bucket: BUCKET_NAME,
-            Key: JSON_FILE_KEY
-        }).promise();
+    const route = getRoute(path, httpMethod);
+    console.log(`Processing route: ${route}`);
 
-        const jsonString = s3Data.Body.toString('utf-8');
-        const jsonContent = JSON.parse(jsonString);
-
-        //Extract label names from the JSON.
-        const labels = jsonContent.Labels.map(label => label.Name).join(', ');
-
-        //Build prompt or query using the extracted label
-        const prompt = `Write a fictional news article based on the following image labels: ${labels}. Make it sound like a creative, short feature story. You are a creative journalist popular in making articles trending today.`;
-
-        //Call OpenAI endpoint
-        const response = await axios.post(
-            'https://is215-openai.upou.io/v1/chat/completions',
-            {
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: prompt }]
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
-        const article = response.data.choices[0].message.content;
-
-        //Output the article on console too.
-        console.log('\n Fictional Article:\n');
-        console.log(article);
-
-        //Adding Article to push back as JSON in S3 
-        const articleKey = `articles/${outputKey.split('/').pop().split('_')[0]}_article.txt`;
-
-        await s3.putObject({
-            Bucket: BUCKET_NAME,
-            Key: articleKey,
-            Body: article,
-            ContentType: 'text/plain'
-        }).promise();
-
-        //sample code for article gen--- OBSOLETE
-        //// Generate article filename
-        //const articleName = key.split('/').pop().split('.')[0];
-        //const articleKey = `Articles/${articleName}_Article.json`;
-
-        //// Upload the JSON file to S3
-        //await s3.putObject({
-        //    Bucket: BUCKET_NAME,
-        //    Key: articleKey,
-        //    Body: JSON.stringify(labels, null, 1),
-        //    ContentType: 'application/json'
-        //}).promise();
-
-    } catch (err) {
-        console.error('Error:', err.message || err);
-        return 'Error generating article.';
+    switch (route) {
+      case 'upload-image':
+        return await handleImageUpload(event);
+      case 'process-image':
+        return await handleImageProcessing(event);
+      case 'generate-article':
+        return await handleArticleGeneration(event);
+      case 'get-status':
+        return await handleGetStatus(event);
+      case 'get-article':
+        return await handleGetArticle(event);
+      case 'get-analysis':
+        return await handleGetAnalysis(event);
+      default:
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ message: 'Invalid operation' }),
+          headers: corsHeaders()
+        };
     }
+  } catch (err) {
+    console.error('Error:', err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ 
+        message: 'Internal server error',
+        error: err.message 
+      }),
+      headers: corsHeaders()
+    };
+  }
+};
+
+function getRoute(path, method) {
+  if (!path) return 'unknown';
+
+  const pathParts = path.split('/').filter(part => part.length > 0);
+
+  if (method === 'POST' && (path.includes('/upload') || pathParts[0] === 'upload')) return 'upload-image';
+  if (method === 'POST' && path.includes('/process') && pathParts.length >= 2) return 'process-image';
+  if (method === 'POST' && path.includes('/generate') && pathParts.length >= 2) return 'generate-article';
+  if (method === 'GET' && path.includes('/status') && pathParts.length >= 2) return 'get-status';
+  if (method === 'GET' && path.includes('/article') && pathParts.length >= 2) return 'get-article';
+  if (method === 'GET' && path.includes('/analysis') && pathParts.length >= 2) return 'get-analysis';
+
+  if (!method) {
+    if (event.operation === 'upload') return 'upload-image';
+    if (event.operation === 'process') return 'process-image';
+    if (event.operation === 'generate') return 'generate-article';
+    if (event.operation === 'status') return 'get-status';
+    if (event.operation === 'article') return 'get-article';
+    if (event.operation === 'analysis') return 'get-analysis';
+  }
+
+  return 'unknown';
 }
 
-// For local testing
-if (require.main === module) {
-    const testKey = 'uploads/cat.jpg'; // simulate uploaded file path
-    generateArticleFromJson(testKey).then(console.log);
+function getImageId(event) {
+  if (event.pathParameters && event.pathParameters.imageId) {
+    return event.pathParameters.imageId;
+  }
+
+  const path = event.path || event.rawPath || '';
+  const pathParts = path.split('/').filter(part => part.length > 0);
+
+  for (let i = 0; i < pathParts.length - 1; i++) {
+    if (['status', 'article', 'analysis', 'process', 'generate'].includes(pathParts[i])) {
+      return pathParts[i + 1];
+    }
+  }
+
+  if (event.body) {
+    try {
+      const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+      if (body.imageId) return body.imageId;
+    } catch (e) {
+      console.log('Error parsing body:', e);
+    }
+  }
+
+  return event.imageId || null;
 }
 
-module.exports = generateArticleFromJson;
+async function handleImageUpload(event) {
+  try {
+    let base64Image;
+    const body = parseBody(event);
+
+    if (body.image) {
+      base64Image = body.image;
+    } else if (body.base64Image) {
+      base64Image = body.base64Image;
+    } else if (typeof body === 'string' && body.includes('base64')) {
+      base64Image = body;
+    }
+
+    if (!base64Image) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'No image data provided' }),
+        headers: corsHeaders()
+      };
+    }
+
+    if (base64Image.includes(',')) {
+      base64Image = base64Image.split(',')[1];
+    }
+
+    const buffer = Buffer.from(base64Image, 'base64');
+    const imageId = uuidv4();
+    const imageKey = `uploads/${imageId}.jpg`;
+    const contentType = getContentType(event) || 'image/jpeg';
+
+    await s3.putObject({
+      Bucket: BUCKET_NAME,
+      Key: imageKey,
+      Body: buffer,
+      ContentType: contentType
+    }).promise();
+
+    processImage(imageId, imageKey).catch(err => {
+      console.error('Background processing error:', err);
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: 'Image uploaded successfully',
+        imageId,
+        status: 'processing',
+        progress: 0
+      }),
+      headers: corsHeaders()
+    };
+  } catch (err) {
+    console.error('Upload error:', err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ 
+        message: 'Failed to upload image',
+        error: err.message 
+      }),
+      headers: corsHeaders()
+    };
+  }
+}
+
+async function processImage(imageId, imageKey) {
+  try {
+    const rekognitionParams = {
+      Image: { S3Object: { Bucket: BUCKET_NAME, Name: imageKey } },
+      MaxLabels: 50,
+      MinConfidence: 70
+    };
+
+    const detectLabelsResponse = await rekognition.detectLabels(rekognitionParams).promise();
+
+    const hasPersonLabel = detectLabelsResponse.Labels.some(
+      label => label.Name === 'Person' && label.Confidence > 80
+    );
+
+    let detectFacesResponse = null;
+    if (hasPersonLabel) {
+      const faceParams = {
+        Image: { S3Object: { Bucket: BUCKET_NAME, Name: imageKey } },
+        Attributes: ['ALL']
+      };
+
+      detectFacesResponse = await rekognition.detectFaces(faceParams).promise();
+    }
+
+    const analysisData = {
+      Labels: detectLabelsResponse.Labels,
+      FaceDetails: detectFacesResponse ? detectFacesResponse.FaceDetails : [],
+      timestamp: new Date().toISOString()
+    };
+
+    const analysisKey = `analysis/${imageId}_analysis.json`;
+
+    await s3.putObject({
+      Bucket: BUCKET_NAME,
+      Key: analysisKey,
+      Body: JSON.stringify(analysisData, null, 2),
+      ContentType: 'application/json'
+    }).promise();
+
+    await generateArticle(imageId, analysisKey, analysisData);
+  } catch (err) {
+    console.error('Error processing image:', err);
+    throw err;
+  }
+}
