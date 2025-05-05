@@ -43,15 +43,18 @@ input[type="file"] {
 }
 
 #imagePreview {
-  display: none;
-  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
   max-width: 100%;
-  height: auto;
+  max-height: 300px;
   border: 2px dashed #ccc;
   padding: 15px;
   border-radius: 10px;
   background-color: #fff;
   transition: border-color 0.3s ease;
+  object-fit: contain;
 }
 
 #imagePreview:hover {
