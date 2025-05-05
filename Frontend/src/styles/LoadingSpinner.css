@@ -1,41 +1,50 @@
-/* LoadingSpinner.css */
+/* Enhanced LoadingSpinner.css */
 .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 3rem 0;
-    padding: 2rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-  }
-  
-/* Custom spinner boom! */
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 5px solid rgba(0, 123, 255, 0.2);
-  border-radius: 50%;
-  border-top-color: #007bff;
-  animation: spin 1s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 3rem auto;
+  padding: 2rem;
+  max-width: 400px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
 }
 
-/* Animation for the spinner eyyy */
+/* Sleek circular spinner */
+.spinner {
+  width: 64px;
+  height: 64px;
+  border: 6px solid transparent;
+  border-top: 6px solid #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 
-  .loading-text {
-    margin-top: 1.5rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #212529;
-  }
-  
-  .loading-subtext {
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
+.loading-text {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #343a40;
+  transition: color 0.3s ease;
+}
+
+.loading-subtext {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+  color: #6c757d;
+  opacity: 0.9;
+}
