@@ -12,7 +12,7 @@ function App() {
     if (!selected) return;
 
     setFile(selected);
-    setImageKey(selected.name);
+    setImageKey('1.jpg'); //CHANGE TO selected.name
     setPreview(URL.createObjectURL(selected));
     setMessage('');
   };
@@ -27,7 +27,8 @@ function App() {
 
       try {
         setMessage('Uploading to S3...');
-
+        console.log('Base64:', base64); // Log the base64 string
+        console.log('Image Key:', imageKey); // Log the image key
         // ✅ Upload to S3 via your backend API
         const uploadResponse = await fetch(
           'https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/upload',
@@ -52,14 +53,15 @@ function App() {
         return;
       } finally {
         try {
+          const url = `https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/getLabels?imageKey=${encodeURIComponent(imageKey)}`
+          console.log('Fetching from URL:', url); // Log the URL being fetched
           const response = await fetch(
-            `https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/getLabels?imageKey=${encodeURIComponent(imageKey)}`,
+            url,
             {
-              method: 'POST',
+              method: 'GET',
               headers: {
-                'Content-Type': 'image/jpeg',
-              },
-              body: base64, // or just send imageKey if that's what the API expects
+                'Content-Type': 'application/json',
+              }
             }
           );
 
