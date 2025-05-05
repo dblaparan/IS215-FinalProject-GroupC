@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/ImageS3Upload.css';
 
-function App() {
+function ImageS3Upload({ onUploadStart, onAnalysisComplete }) {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
   const [preview, setPreview] = useState(null);
@@ -19,14 +19,16 @@ function App() {
 
   const handleUpload = async () => {
     if (!file) return;
-
+    setMessage('Preparing to upload...');
+    if (typeof onUploadStart === 'function') {
+      onUploadStart();
+    }
+    
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result.split(',')[1];
-
       try {
         setMessage('Uploading to S3...');
-
         const uploadResponse = await fetch(
           'https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/upload',
           {
@@ -47,7 +49,9 @@ function App() {
 
         const uploadData = await uploadResponse.json();
         setUploadedKey(uploadData.key);
-
+        
+        const imageUrl = `https://is215-image-labeling.amazonaws.com/upload_image${uploadData.key}`;
+        
         const url = `https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/getLabels?imageKey=${encodeURIComponent(uploadData.key.replace('uploads/', ''))}`;
         const response = await fetch(url, {
           method: 'GET',
@@ -58,6 +62,11 @@ function App() {
 
         const data = await response.json();
         setMessage(data.message || 'Upload complete!');
+      
+        if (typeof onAnalysisComplete === 'function') {
+          onAnalysisComplete(data, imageUrl);
+        }
+        
       } catch (error) {
         setMessage('❌ Error: ' + error.message);
       }
@@ -77,4 +86,4 @@ function App() {
   );
 }
 
-export default App;
+export default ImageS3Upload;
