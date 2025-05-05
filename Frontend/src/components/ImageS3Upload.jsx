@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+import '../styles/ImageS3Upload.css';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -24,7 +24,7 @@ function App() {
 
       try {
         setMessage('Uploading...');
-        const response = await fetch('https://98jf4348gh.execute-api.us-east-1.amazonaws.com/directupload-s3bucket/upload', {
+        const response = await fetch('https://4o536nhnq5.execute-api.us-east-1.amazonaws.com', {
           method: 'POST',
           headers: {
             'Content-Type': 'image/jpeg',
