@@ -49,15 +49,16 @@ async function generateArticleFromJson(outputKey) {
         console.log(article);
 
         //Adding Article to push back as JSON in S3 
-        const articleKey = `articles/${outputKey.split('/').pop().split('_')[0]}_article.json`;
+        const articleKey = `articles/${outputKey.split('/').pop().split('_')[0]}_article.txt`;
 
         await s3.putObject({
             Bucket: BUCKET_NAME,
             Key: articleKey,
-            Body: JSON.stringify({ article }, null, 2),
-            ContentType: 'application/json'
+            Body: article,
+            ContentType: 'text/plain'
         }).promise();
 
+        //sample code for article gen--- OBSOLETE
         //// Generate article filename
         //const articleName = key.split('/').pop().split('.')[0];
         //const articleKey = `Articles/${articleName}_Article.json`;
