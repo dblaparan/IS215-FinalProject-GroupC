@@ -4,22 +4,25 @@ const { v4: uuidv4 } = require('uuid');
 
 exports.handler = async (event) => {
   try {
-    const base64Image = event.body;
-    const buffer = Buffer.from(base64Image, 'base64');
+    const body = JSON.parse(event.body);
+    const { imageKey, imageData } = body;
 
-    const contentType = event.headers['Content-Type'] || 'image/jpeg';
-    const key = `uploads/${uuidv4()}.jpg`;
+    const buffer = Buffer.from(imageData, 'base64');
+    const key = imageKey ? `uploads/${imageKey}` : `uploads/${uuidv4()}.jpg`;
 
     await s3.putObject({
-      Bucket: 'your-s3-bucket-name',
+      Bucket: 'is215-image-labeling',
       Key: key,
       Body: buffer,
-      ContentType: contentType,
+      ContentType: 'image/jpeg',
     }).promise();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Image uploaded to S3', key }),
+      body: JSON.stringify({
+        message: 'Image uploaded to S3',
+        key: key
+      }),
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -28,7 +31,10 @@ exports.handler = async (event) => {
     console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Failed to upload image' }),
+      body: JSON.stringify({
+        message: 'Failed to upload image',
+        error: err.message
+      }),
       headers: {
         'Access-Control-Allow-Origin': '*',
       },

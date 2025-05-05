@@ -6,13 +6,13 @@ function App() {
   const [message, setMessage] = useState('');
   const [preview, setPreview] = useState(null);
   const [imageKey, setImageKey] = useState('');
+  const [uploadedKey, setUploadedKey] = useState('');
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
     if (!selected) return;
-
     setFile(selected);
-    setImageKey('1.jpg'); //CHANGE TO selected.name
+    setImageKey(selected.name);
     setPreview(URL.createObjectURL(selected));
     setMessage('');
   };
@@ -21,15 +21,12 @@ function App() {
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onloadend = async () => {
-      const base64 = reader.result.split(',')[1]; // Remove data URI prefix
+      const base64 = reader.result.split(',')[1];
 
       try {
         setMessage('Uploading to S3...');
-        console.log('Base64:', base64); // Log the base64 string
-        console.log('Image Key:', imageKey); // Log the image key
-        // ✅ Upload to S3 via your backend API
+
         const uploadResponse = await fetch(
           'https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/upload',
           {
@@ -48,31 +45,23 @@ function App() {
           throw new Error(`Upload failed with status ${uploadResponse.status}`);
         }
 
-      } catch (error) {
-        setMessage('❌ Upload failed: ' + error.message);
-        return;
-      } finally {
-        try {
-          const url = `https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/getLabels?imageKey=${encodeURIComponent(imageKey)}`
-          console.log('Fetching from URL:', url); // Log the URL being fetched
-          const response = await fetch(
-            url,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              }
-            }
-          );
+        const uploadData = await uploadResponse.json();
+        setUploadedKey(uploadData.key);
 
-          const data = await response.json();
-          setMessage(data.message || 'Upload complete!');
-        } catch (fetchError) {
-          setMessage('❌ Fetch failed: ' + fetchError.message);
-        }
+        const url = `https://4o536nhnq5.execute-api.us-east-1.amazonaws.com/getLabels?imageKey=${encodeURIComponent(uploadData.key.replace('uploads/', ''))}`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+        setMessage(data.message || 'Upload complete!');
+      } catch (error) {
+        setMessage('❌ Error: ' + error.message);
       }
     };
-
     reader.readAsDataURL(file);
   };
 
@@ -83,6 +72,7 @@ function App() {
       {preview && <img src={preview} alt="preview" className="image-preview" />}
       <button onClick={handleUpload} disabled={!file}>Upload Image</button>
       <p className="status">{message}</p>
+      {uploadedKey && <p>Uploaded to: {uploadedKey}</p>}
     </div>
   );
 }
