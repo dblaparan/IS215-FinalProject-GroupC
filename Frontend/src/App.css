@@ -12,7 +12,7 @@ body {
 }
 
 .App-header {
-  background-color: #0f62fe;
+  background-color: #213448;
   padding: 2rem;
   color: white;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -57,7 +57,7 @@ body {
 }
 
 button {
-  background-color: #0f62fe;
+  background-color: #213448;
   color: white;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
